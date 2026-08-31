@@ -75,17 +75,20 @@ class _CardFacePickerPageState extends ConsumerState<CardFacePickerPage> {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            Image.network(
-                              url,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.center,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return const ShimmerImageCard();
-                              },
-                              errorBuilder: (context, error, stackTrace) => Container(
-                                color: Colors.grey.withValues(alpha: 0.2),
-                                child: const Icon(Icons.error),
+                            RotatedBox(
+                              quarterTurns: 1,
+                              child: Image.network(
+                                url,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.center,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const ShimmerImageCard();
+                                },
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  color: Colors.grey.withValues(alpha: 0.2),
+                                  child: const Icon(Icons.error),
+                                ),
                               ),
                             ),
                             // Selection overlay
