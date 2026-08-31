@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:yoyu/features/detail/domain/models/yoyu_transaction.dart';
+import 'package:yoyu/core/widgets/dashed_divider.dart';
 
 class TransitCardWidget extends StatelessWidget {
   final TransitTransaction transaction;
@@ -21,8 +22,6 @@ class TransitCardWidget extends StatelessWidget {
     final dateFormat = DateFormat('MM/dd');
     final timeFormat = DateFormat('HH:mm');
     final currencyFormat = NumberFormat.currency(locale: 'zh_TW', symbol: '\$', decimalDigits: 0);
-
-    final bool isSameTime = transaction.inTime.isAtSameMomentAs(transaction.outTime);
     
     // Adjust 0 amount color for dark mode
     Color amountColor = _getAmountColor(transaction.amount);
@@ -32,7 +31,6 @@ class TransitCardWidget extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF242424) : Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -44,15 +42,16 @@ class TransitCardWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Left Side: Header & Journey Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // Header (票頭)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Header: Date & Partner Name
+                // Date & Partner
                 Row(
                   children: [
                     Text(
@@ -74,96 +73,147 @@ class TransitCardWidget extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                
-                // Body: A -> B Journey
+                // Amount & Balance
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
-                    // Origin
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          transaction.inLocation,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          timeFormat.format(transaction.inTime),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDark ? Colors.white54 : Colors.black54,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      '餘 ${currencyFormat.format(transaction.balance)}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? Colors.white30 : Colors.black38,
+                      ),
                     ),
-                    
-                    // Arrow (only if different locations/times)
-                    if (!isSameTime || transaction.inLocation != transaction.outLocation) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 16,
-                          color: isDark ? Colors.white30 : Colors.black38,
-                        ),
+                    const SizedBox(width: 12),
+                    Text(
+                      (transaction.amount > 0 ? '+' : '') + transaction.amount.toString(),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: amountColor,
                       ),
-                      
-                      // Destination
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            transaction.outLocation,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            timeFormat.format(transaction.outTime),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? Colors.white54 : Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ],
                 ),
               ],
             ),
           ),
           
-          // Right Side: Amount & Balance
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                (transaction.amount > 0 ? '+' : '') + transaction.amount.toString(),
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: amountColor,
+          // Dashed Divider (折線)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: DashedDivider(
+              color: isDark ? Colors.white12 : Colors.black12,
+            ),
+          ),
+          
+          // Body (票面: 絕對網格對齊)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Column 1: Graphic (固定 30px)
+                SizedBox(
+                  width: 30,
+                  height: 40,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: theme.primaryColor, width: 2),
+                        ),
+                      ),
+                      Container(
+                        width: 2,
+                        height: 16,
+                        margin: const EdgeInsets.only(left: 3),
+                        color: theme.primaryColor.withValues(alpha: 0.3),
+                      ),
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '餘 ${currencyFormat.format(transaction.balance)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark ? Colors.white30 : Colors.black38,
+                
+                // Column 2: Locations (Expanded)
+                Expanded(
+                  child: SizedBox(
+                    height: 42,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          transaction.inLocation,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
+                            height: 1.0,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          transaction.outLocation,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
+                            height: 1.0,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                
+                // Column 3: Times (固定 50px)
+                SizedBox(
+                  width: 50,
+                  height: 42,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        timeFormat.format(transaction.inTime),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? Colors.white54 : Colors.black54,
+                          fontFamily: 'monospace',
+                          height: 1.0,
+                        ),
+                      ),
+                      Text(
+                        timeFormat.format(transaction.outTime),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? Colors.white54 : Colors.black54,
+                          fontFamily: 'monospace',
+                          height: 1.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

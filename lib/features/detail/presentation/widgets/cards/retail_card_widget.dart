@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:yoyu/features/detail/domain/models/yoyu_transaction.dart';
+import 'package:yoyu/core/widgets/dashed_divider.dart';
 
 class RetailCardWidget extends StatelessWidget {
   final RetailTransaction transaction;
@@ -30,7 +31,6 @@ class RetailCardWidget extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF242424) : Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -42,15 +42,16 @@ class RetailCardWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Left Side: Header & Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // Header (票頭)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Header: Date & Partner Name
+                // Date & Partner Name
                 Row(
                   children: [
                     Text(
@@ -72,26 +73,25 @@ class RetailCardWidget extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                
-                // Body: Location and Description
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // Amount & Balance
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      '${transaction.location} ${transaction.description}'.trim(),
+                      '餘 ${currencyFormat.format(transaction.balance)}',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
+                        fontSize: 11,
+                        color: isDark ? Colors.white30 : Colors.black38,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(width: 12),
                     Text(
-                      timeFormat.format(transaction.time),
+                      (transaction.amount > 0 ? '+' : '') + transaction.amount.toString(),
                       style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? Colors.white54 : Colors.black54,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: amountColor,
                       ),
                     ),
                   ],
@@ -100,27 +100,64 @@ class RetailCardWidget extends StatelessWidget {
             ),
           ),
           
-          // Right Side: Amount & Balance
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                (transaction.amount > 0 ? '+' : '') + transaction.amount.toString(),
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: amountColor,
+          // Dashed Divider (折線)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: DashedDivider(
+              color: isDark ? Colors.white12 : Colors.black12,
+            ),
+          ),
+          
+          // Body (票面: 絕對網格對齊)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Column 1: Graphic (固定 30px)
+                SizedBox(
+                  width: 30,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: theme.primaryColor,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '餘 ${currencyFormat.format(transaction.balance)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark ? Colors.white30 : Colors.black38,
+                
+                // Column 2: Location/Description (Expanded)
+                Expanded(
+                  child: Text(
+                    '${transaction.location} ${transaction.description}'.trim(),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black87,
+                      height: 1.0,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
+                
+                // Column 3: Time (固定 50px)
+                SizedBox(
+                  width: 50,
+                  child: Text(
+                    timeFormat.format(transaction.time),
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white54 : Colors.black54,
+                      fontFamily: 'monospace',
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
