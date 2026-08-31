@@ -7,13 +7,26 @@ class RetailCardWidget extends StatelessWidget {
 
   const RetailCardWidget({super.key, required this.transaction});
 
+  Color _getAmountColor(int amount) {
+    if (amount > 0) return Colors.green;
+    if (amount < 0) return Colors.red;
+    return Colors.black; // Fallback for 0, adjusted for dark mode below
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     
-    final dateFormat = DateFormat('MM/dd\nHH:mm');
+    final dateFormat = DateFormat('MM/dd');
+    final timeFormat = DateFormat('HH:mm');
     final currencyFormat = NumberFormat.currency(locale: 'zh_TW', symbol: '\$', decimalDigits: 0);
+
+    // Adjust 0 amount color for dark mode
+    Color amountColor = _getAmountColor(transaction.amount);
+    if (transaction.amount == 0 && isDark) {
+      amountColor = Colors.white;
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -32,66 +45,53 @@ class RetailCardWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Date Column
-          SizedBox(
-            width: 50,
-            child: Text(
-              dateFormat.format(transaction.time),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.white54 : Colors.black54,
-                height: 1.3,
-              ),
-            ),
-          ),
-          
-          Container(
-            width: 1,
-            height: 40,
-            color: isDark ? Colors.white12 : Colors.black12,
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-          ),
-          
-          // Details Column
+          // Left Side: Header & Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (transaction.partnerName.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text(
-                      transaction.partnerName,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: theme.primaryColor.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ),
-                  
+                // Header: Date & Partner Name
                 Row(
                   children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: transaction.amount > 0 ? Colors.green : theme.primaryColor,
+                    Text(
+                      dateFormat.format(transaction.time),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white54 : Colors.black54,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${transaction.location} ${transaction.description}'.trim(),
+                    if (transaction.partnerName.isNotEmpty)
+                      Text(
+                        transaction.partnerName,
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.black87,
+                          fontSize: 12,
+                          color: theme.primaryColor.withValues(alpha: 0.8),
                         ),
-                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                
+                // Body: Location and Description
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${transaction.location} ${transaction.description}'.trim(),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      timeFormat.format(transaction.time),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.white54 : Colors.black54,
                       ),
                     ),
                   ],
@@ -100,26 +100,23 @@ class RetailCardWidget extends StatelessWidget {
             ),
           ),
           
-          // Amount & Balance Column
+          // Right Side: Amount & Balance
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 (transaction.amount > 0 ? '+' : '') + transaction.amount.toString(),
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: transaction.amount > 0 
-                      ? Colors.green 
-                      : (isDark ? Colors.white : Colors.black),
+                  color: amountColor,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 '餘 ${currencyFormat.format(transaction.balance)}',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: isDark ? Colors.white30 : Colors.black38,
                 ),
               ),

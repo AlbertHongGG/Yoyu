@@ -7,15 +7,28 @@ class TransitCardWidget extends StatelessWidget {
 
   const TransitCardWidget({super.key, required this.transaction});
 
+  Color _getAmountColor(int amount) {
+    if (amount > 0) return Colors.green;
+    if (amount < 0) return Colors.red;
+    return Colors.black; // Fallback for 0, adjusted for dark mode below
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     
-    final dateFormat = DateFormat('MM/dd\nHH:mm');
+    final dateFormat = DateFormat('MM/dd');
+    final timeFormat = DateFormat('HH:mm');
     final currencyFormat = NumberFormat.currency(locale: 'zh_TW', symbol: '\$', decimalDigits: 0);
 
     final bool isSameTime = transaction.inTime.isAtSameMomentAs(transaction.outTime);
+    
+    // Adjust 0 amount color for dark mode
+    Color amountColor = _getAmountColor(transaction.amount);
+    if (transaction.amount == 0 && isDark) {
+      amountColor = Colors.white;
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -32,136 +45,121 @@ class TransitCardWidget extends StatelessWidget {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start, // Align to top
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Date Column
-          SizedBox(
-            width: 50,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  dateFormat.format(transaction.inTime),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? Colors.white54 : Colors.black54,
-                    height: 1.3,
-                  ),
-                ),
-                if (!isSameTime) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    dateFormat.format(transaction.outTime),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDark ? Colors.white54 : Colors.black54,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          
-          Container(
-            width: 1,
-            color: isDark ? Colors.white12 : Colors.black12,
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-          ),
-          
-          // Details Column
+          // Left Side: Header & Journey Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (transaction.partnerName.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text(
-                      transaction.partnerName,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: theme.primaryColor.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ),
-                
+                // Header: Date & Partner Name
                 Row(
                   children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: theme.primaryColor, width: 2),
+                    Text(
+                      dateFormat.format(transaction.inTime),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white54 : Colors.black54,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      transaction.inLocation,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white70 : Colors.black87,
+                    if (transaction.partnerName.isNotEmpty)
+                      Text(
+                        transaction.partnerName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: theme.primaryColor.withValues(alpha: 0.8),
+                        ),
                       ),
-                    ),
                   ],
                 ),
+                const SizedBox(height: 12),
                 
-                Container(
-                  margin: const EdgeInsets.only(left: 3, top: 4, bottom: 4),
-                  width: 2,
-                  height: 12,
-                  color: isDark ? Colors.white12 : Colors.black12,
-                ),
-                
+                // Body: A -> B Journey
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: theme.primaryColor,
-                      ),
+                    // Origin
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          transaction.inLocation,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          timeFormat.format(transaction.inTime),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.white54 : Colors.black54,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      transaction.outLocation,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black87,
+                    
+                    // Arrow (only if different locations/times)
+                    if (!isSameTime || transaction.inLocation != transaction.outLocation) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 16,
+                          color: isDark ? Colors.white30 : Colors.black38,
+                        ),
                       ),
-                    ),
+                      
+                      // Destination
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            transaction.outLocation,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            timeFormat.format(transaction.outTime),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? Colors.white54 : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ],
             ),
           ),
           
-          // Amount & Balance Column
+          // Right Side: Amount & Balance
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 (transaction.amount > 0 ? '+' : '') + transaction.amount.toString(),
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: transaction.amount > 0 
-                      ? Colors.green 
-                      : (isDark ? Colors.white : Colors.black),
+                  color: amountColor,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 '餘 ${currencyFormat.format(transaction.balance)}',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: isDark ? Colors.white30 : Colors.black38,
                 ),
               ),
