@@ -16,9 +16,9 @@ def main():
     e_date = "2026-08-31"
     catalog_s_date = "2026-05-31"
     
-    print(f"\n--- Testing CheckMyCard for card: {card_no} ---")
+    print(f"\n--- Testing CheckMyCards for cards: {[card_no]} ---")
     try:
-        res1 = client.check_my_card(card_no)
+        res1 = client.check_my_cards([card_no])
         print("Success! Response Code:", res1.get('rtnCode'))
     except Exception as e:
         print("Failed:", e)

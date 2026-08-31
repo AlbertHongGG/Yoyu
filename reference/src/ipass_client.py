@@ -32,6 +32,13 @@ class IPassClient:
         response.raise_for_status()
         return response.json()
 
+    def check_my_cards(self, card_nos: list[str]) -> Dict[str, Any]:
+        url = f"{self.BASE_URL}/CheckMyCards"
+        payload = {"cardNos": card_nos}
+        response = self.http_client.request('POST', url, json=payload)
+        response.raise_for_status()
+        return response.json()
+
     def get_inquire_detail(self, s_date: str, e_date: str, card_no: str) -> Dict[str, Any]:
         url = f"{self.BASE_URL}/GetInquireDetail"
         payload = {
