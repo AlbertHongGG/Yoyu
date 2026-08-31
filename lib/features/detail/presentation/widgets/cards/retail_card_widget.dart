@@ -52,27 +52,34 @@ class RetailCardWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Date & Partner Name
-                Row(
-                  children: [
-                    Text(
-                      dateFormat.format(transaction.time),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white54 : Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    if (transaction.partnerName.isNotEmpty)
+                Expanded(
+                  child: Row(
+                    children: [
                       Text(
-                        transaction.partnerName,
+                        dateFormat.format(transaction.time),
                         style: TextStyle(
                           fontSize: 12,
-                          color: theme.primaryColor.withValues(alpha: 0.8),
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white54 : Colors.black54,
                         ),
                       ),
-                  ],
+                      const SizedBox(width: 8),
+                      if (transaction.partnerName.isNotEmpty)
+                        Flexible(
+                          child: Text(
+                            transaction.partnerName,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: theme.primaryColor.withValues(alpha: 0.8),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 12),
                 // Amount & Balance
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
