@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:yoyu/features/home/domain/models/card_entity.dart';
+import 'package:yoyu/features/detail/domain/models/yoyu_transaction.dart';
 import 'package:yoyu/features/detail/presentation/controllers/transaction_controller.dart';
 import 'package:yoyu/features/detail/presentation/controllers/analysis_controller.dart';
 import 'package:yoyu/features/detail/presentation/widgets/transaction_history_tab.dart';
 import 'package:yoyu/features/detail/presentation/widgets/transaction_analysis_tab.dart';
 import 'package:yoyu/core/widgets/skeleton_widget.dart';
+import 'package:yoyu/features/detail/presentation/providers/card_detail_filter_provider.dart';
+import 'package:yoyu/core/widgets/app_bottom_sheet.dart';
+import 'package:yoyu/core/widgets/search_dialog.dart';
+import 'package:yoyu/features/detail/presentation/widgets/date_range_bottom_sheet.dart';
 
 class CardDetailPage extends ConsumerStatefulWidget {
   final CardEntity card;
@@ -31,8 +37,10 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final txAsync = ref.watch(transactionProvider(widget.card.cardNo));
+    final txAsync = ref.watch(filteredTransactionProvider(widget.card.cardNo));
     final anAsync = ref.watch(analysisProvider(widget.card.cardNo));
+    ref.watch(cardDetailFilterProvider);
+    final filterState = ref.read(cardDetailFilterProvider.notifier).getState(widget.card.cardNo);
 
     Widget currentTab;
     if (_currentIndex == 0) {
@@ -77,12 +85,21 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
       );
     }
 
+    final rawTxAsync = ref.watch(transactionProvider(widget.card.cardNo));
+    final List<String> availablePartners = rawTxAsync.maybeWhen(
+      data: (txs) => txs.map((e) => switch (e) {
+        TransitTransaction t => t.partnerName,
+        RetailTransaction r => r.partnerName,
+      }).toSet().toList(),
+      orElse: () => [],
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.card.cardNo,
-          style: const TextStyle(fontFamily: 'monospace', letterSpacing: 1.5, fontSize: 16),
-        ),
+        automaticallyImplyLeading: false,
+        titleSpacing: 16,
+        title: _buildAppBarTitle(filterState),
+        actions: _buildAppBarActions(filterState, availablePartners),
       ),
       body: Stack(
         children: [
@@ -170,5 +187,141 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildAppBarTitle(CardDetailFilterState filterState) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    if (filterState.searchQuery.isNotEmpty) {
+      return Text(
+        '搜尋: ${filterState.searchQuery}',
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).primaryColor,
+        ),
+      );
+    }
+    
+    final df = DateFormat('yyyy/MM/dd');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          df.format(filterState.sDate),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : Colors.black,
+            height: 1.2,
+          ),
+        ),
+        Text(
+          '~ ${df.format(filterState.eDate)}',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white70 : Colors.black87,
+            height: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildAppBarActions(CardDetailFilterState filterState, List<String> partners) {
+    final theme = Theme.of(context);
+    
+    return [
+      // 1. Partner Filter
+      IconButton(
+        icon: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const Icon(Icons.filter_list_rounded),
+            if (filterState.partnerFilter != null && filterState.partnerFilter!.isNotEmpty)
+              Positioned(
+                right: -2,
+                top: -2,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        onPressed: () {
+          final items = [
+            AppBottomSheetItemData<String?>(
+              title: '全部',
+              leadingIcon: Icons.all_inclusive,
+              value: null,
+            )
+          ];
+          for (final p in partners) {
+            items.add(AppBottomSheetItemData(
+              title: p,
+              leadingIcon: Icons.directions_bus_filled_rounded,
+              value: p,
+            ));
+          }
+          AppBottomSheet.show<String?>(
+            context: context,
+            title: '合作夥伴過濾',
+            items: items,
+            selectedValue: filterState.partnerFilter,
+            onItemSelected: (val) {
+              ref.read(cardDetailFilterProvider.notifier).updateState(widget.card.cardNo,
+                (state) => state.copyWith(partnerFilter: val)
+              );
+            },
+          );
+        },
+      ),
+      
+      // 2. Search
+      IconButton(
+        icon: Icon(filterState.searchQuery.isNotEmpty ? Icons.close_rounded : Icons.search_rounded),
+        onPressed: () {
+          if (filterState.searchQuery.isNotEmpty) {
+            ref.read(cardDetailFilterProvider.notifier).updateState(widget.card.cardNo,
+              (state) => state.copyWith(searchQuery: '')
+            );
+          } else {
+            showDialog(
+              context: context,
+              builder: (_) => SearchDialog(
+                initialQuery: filterState.searchQuery,
+                hintText: '搜尋站點、加值...',
+                onSearch: (q) {
+                  ref.read(cardDetailFilterProvider.notifier).updateState(widget.card.cardNo,
+                    (state) => state.copyWith(searchQuery: q)
+                  );
+                },
+                onClear: () {
+                  ref.read(cardDetailFilterProvider.notifier).updateState(widget.card.cardNo,
+                    (state) => state.copyWith(searchQuery: '')
+                  );
+                },
+              ),
+            );
+          }
+        },
+      ),
+
+      // 3. Date Range
+      IconButton(
+        icon: const Icon(Icons.date_range_rounded),
+        onPressed: () {
+          DateRangeBottomSheet.show(context, widget.card.cardNo);
+        },
+      ),
+      const SizedBox(width: 8),
+    ];
   }
 }

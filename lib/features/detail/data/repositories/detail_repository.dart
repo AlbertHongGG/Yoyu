@@ -12,10 +12,7 @@ class DetailRepository {
 
   DetailRepository(this._apiClient, this._aggregator);
 
-  Future<List<YoyuTransaction>> getTransactions(String cardNo) async {
-    // Determine date range (e.g., last 3 months)
-    final now = DateTime.now();
-    final sDate = DateTime(now.year, now.month - 3, now.day);
+  Future<List<YoyuTransaction>> getTransactions({required String cardNo, required DateTime sDate, required DateTime eDate}) async {
     final dateFormat = DateFormat('yyyy-MM-dd');
 
     try {
@@ -23,7 +20,7 @@ class DetailRepository {
         'GetInquireDetail',
         data: {
           "sDate": dateFormat.format(sDate),
-          "eDate": dateFormat.format(now),
+          "eDate": dateFormat.format(eDate),
           "cardNo": cardNo,
         },
       );
@@ -44,9 +41,7 @@ class DetailRepository {
     }
   }
 
-  Future<List<TransactionAnalysis>> getAnalysis(String cardNo) async {
-    final now = DateTime.now();
-    final sDate = DateTime(now.year, now.month - 3, now.day);
+  Future<List<TransactionAnalysis>> getAnalysis({required String cardNo, required DateTime sDate, required DateTime eDate}) async {
     final dateFormat = DateFormat('yyyy-MM-dd');
 
     try {
@@ -54,7 +49,7 @@ class DetailRepository {
         'GetInquireCatalog',
         data: {
           "sDate": dateFormat.format(sDate),
-          "eDate": dateFormat.format(now),
+          "eDate": dateFormat.format(eDate),
           "cardNo": cardNo,
         },
       );
