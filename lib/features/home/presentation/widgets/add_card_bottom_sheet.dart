@@ -84,12 +84,12 @@ class _AddCardBottomSheetState extends ConsumerState<AddCardBottomSheet> {
                 children: [
                   // Drag Handle
                   Container(
-                    width: 48,
-                    height: 5,
+                    width: 40,
+                    height: 4,
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
                       color: isDark ? Colors.white24 : Colors.black12,
-                      borderRadius: BorderRadius.circular(2.5),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                   // Header with Title and Done Icon
@@ -100,10 +100,11 @@ class _AddCardBottomSheetState extends ConsumerState<AddCardBottomSheet> {
                       Text(
                         '新增卡片',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontFamily: 'Outfit',
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          letterSpacing: 1.5,
-                          color: isDark ? Colors.white70 : Colors.black87,
+                          letterSpacing: 2.0,
+                          color: isDark ? Colors.white54 : Colors.black54,
                         ),
                       ),
                       _isLoading
