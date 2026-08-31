@@ -12,7 +12,7 @@ def main():
     client = IPassClient(log_dir=str(log_dir))
     
     card_no = "77050067379"
-    s_date = "2026-08-01"
+    s_date = "2026-06-01"
     e_date = "2026-08-31"
     catalog_s_date = "2026-05-31"
     

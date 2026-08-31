@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yoyu/features/home/presentation/pages/home_page.dart';
-import 'package:yoyu/core/notifications/widgets/global_notification_overlay.dart';
 
 import 'package:yoyu/features/card_face/presentation/pages/card_face_picker_page.dart';
 import 'package:yoyu/features/detail/presentation/pages/card_detail_page.dart';
