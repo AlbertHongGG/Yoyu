@@ -15,7 +15,7 @@ class TransitCardWidget extends StatelessWidget {
     final dateFormat = DateFormat('MM/dd\nHH:mm');
     final currencyFormat = NumberFormat.currency(locale: 'zh_TW', symbol: '\$', decimalDigits: 0);
 
-    final isSameTime = transaction.inTime.isAtSameMomentAs(transaction.outTime);
+    final bool isSameTime = transaction.inTime.isAtSameMomentAs(transaction.outTime);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

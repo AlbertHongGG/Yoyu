@@ -35,54 +35,28 @@ class TransitParser implements TransactionParser {
         
         processedTraceNos.add(current.traceNo);
         
-        final amount = _parseAmount(current.amt);
+        // Sum the amounts from both in and out records
+        final outAmount = _parseAmount(current.amt);
+        final inAmount = inRecord != null ? _parseAmount(inRecord.amt) : 0;
+        final totalAmount = outAmount + inAmount;
+        
+        final outTime = DateTime.fromMillisecondsSinceEpoch(current.transactionDate * 1000);
         final inTime = inRecord != null 
             ? DateTime.fromMillisecondsSinceEpoch(inRecord.transactionDate * 1000)
-            : DateTime.fromMillisecondsSinceEpoch(current.transactionDate * 1000);
-        final outTime = DateTime.fromMillisecondsSinceEpoch(current.transactionDate * 1000);
+            : outTime; 
         
         result.add(YoyuTransaction.transit(
           traceNo: current.traceNo,
           partnerName: current.partnerName,
-          amount: amount,
+          amount: totalAmount,
           balance: current.electronicValue,
           inTime: inTime,
           outTime: outTime,
-          inLocation: inRecord != null ? inRecord.locationName : '未知起點',
+          inLocation: inRecord != null ? inRecord.locationName : '',
           outLocation: current.locationName,
         ));
-      } else if (current.xtype == '進站' || current.xtype == '段次上車') {
-        // Unmatched in-record
-        processedTraceNos.add(current.traceNo);
-        final amount = _parseAmount(current.amt);
-        final time = DateTime.fromMillisecondsSinceEpoch(current.transactionDate * 1000);
-        
-        result.add(YoyuTransaction.transit(
-          traceNo: current.traceNo,
-          partnerName: current.partnerName,
-          amount: amount,
-          balance: current.electronicValue,
-          inTime: time,
-          outTime: time, // Both same if no out record
-          inLocation: current.locationName,
-          outLocation: '未知終點',
-        ));
-      } else {
-        // Fallback for unexpected transit types
-        processedTraceNos.add(current.traceNo);
-        final amount = _parseAmount(current.amt);
-        final time = DateTime.fromMillisecondsSinceEpoch(current.transactionDate * 1000);
-        
-        result.add(YoyuTransaction.retail(
-          traceNo: current.traceNo,
-          partnerName: current.partnerName,
-          amount: amount,
-          balance: current.electronicValue,
-          time: time,
-          location: current.locationName,
-          description: current.xtype,
-        ));
       }
+      // Removed all dirty fallbacks for unexpected or unmatched single-tap scenarios
     }
     return result;
   }

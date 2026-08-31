@@ -31,7 +31,6 @@ class TransactionAggregator {
     });
 
     // Sort all by time descending (newest first). 
-    // For TransitTransaction, we sort by outTime (or time if retail)
     allTransactions.sort((a, b) {
       final aTime = a.map(
         transit: (t) => t.outTime,
