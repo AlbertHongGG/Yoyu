@@ -25,8 +25,8 @@ class DateRangeBottomSheet extends ConsumerStatefulWidget {
 }
 
 enum DateQuickTag {
-  thisWeek,
-  thisMonth,
+  last7Days,
+  lastMonth,
   last3Months,
   prev3Months,
   q1,
@@ -51,14 +51,13 @@ class _DateRangeBottomSheetState extends ConsumerState<DateRangeBottomSheet> {
     final now = DateTime.now();
     setState(() {
       switch (tag) {
-        case DateQuickTag.thisWeek:
+        case DateQuickTag.last7Days:
           _eDate = now;
-          final diff = now.weekday - 1;
-          _sDate = now.subtract(Duration(days: diff));
+          _sDate = now.subtract(const Duration(days: 7));
           break;
-        case DateQuickTag.thisMonth:
+        case DateQuickTag.lastMonth:
           _eDate = now;
-          _sDate = DateTime(now.year, now.month, 1);
+          _sDate = DateTime(now.year, now.month - 1, now.day);
           break;
         case DateQuickTag.last3Months:
           _eDate = now;
@@ -200,9 +199,9 @@ class _DateRangeBottomSheetState extends ConsumerState<DateRangeBottomSheet> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildQuickTag('本周', () => _applyQuickTag(DateQuickTag.thisWeek), theme, isDark),
+                    _buildQuickTag('近七天', () => _applyQuickTag(DateQuickTag.last7Days), theme, isDark),
                     const SizedBox(width: 12),
-                    _buildQuickTag('本月', () => _applyQuickTag(DateQuickTag.thisMonth), theme, isDark),
+                    _buildQuickTag('近一個月', () => _applyQuickTag(DateQuickTag.lastMonth), theme, isDark),
                     const SizedBox(width: 12),
                     _buildQuickTag('近三個月', () => _applyQuickTag(DateQuickTag.last3Months), theme, isDark),
                     const SizedBox(width: 12),
