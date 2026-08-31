@@ -1,3 +1,48 @@
+# Miscellaneous
+*.class
+*.log
 *.pyc
-*/log
-.venv
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+.venv/
+reference/log/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains bang-for-buck settings and snippets for vscode.
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Android related
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+
+# Exceptions to above rules.
+!**/android/**/build.gradle
+!**/android/**/build.gradle.kts
+
+# Freezed/Json Serializable generated files
+*.freezed.dart
+*.g.dart
