@@ -24,6 +24,17 @@ class DateRangeBottomSheet extends ConsumerStatefulWidget {
   ConsumerState<DateRangeBottomSheet> createState() => _DateRangeBottomSheetState();
 }
 
+enum DateQuickTag {
+  thisWeek,
+  thisMonth,
+  last3Months,
+  prev3Months,
+  q1,
+  q2,
+  q3,
+  q4,
+}
+
 class _DateRangeBottomSheetState extends ConsumerState<DateRangeBottomSheet> {
   late DateTime _sDate;
   late DateTime _eDate;
@@ -36,20 +47,43 @@ class _DateRangeBottomSheetState extends ConsumerState<DateRangeBottomSheet> {
     _eDate = filterState.eDate;
   }
 
-  void _applyQuickTag(int monthsAgo) {
+  void _applyQuickTag(DateQuickTag tag) {
     final now = DateTime.now();
     setState(() {
-      _eDate = now;
-      if (monthsAgo == 0) {
-        // This Week
-        final diff = now.weekday - 1;
-        _sDate = now.subtract(Duration(days: diff));
-      } else if (monthsAgo == -1) {
-        // This Month
-        _sDate = DateTime(now.year, now.month, 1);
-      } else {
-        // Last X Months
-        _sDate = DateTime(now.year, now.month - monthsAgo, now.day);
+      switch (tag) {
+        case DateQuickTag.thisWeek:
+          _eDate = now;
+          final diff = now.weekday - 1;
+          _sDate = now.subtract(Duration(days: diff));
+          break;
+        case DateQuickTag.thisMonth:
+          _eDate = now;
+          _sDate = DateTime(now.year, now.month, 1);
+          break;
+        case DateQuickTag.last3Months:
+          _eDate = now;
+          _sDate = DateTime(now.year, now.month - 3, now.day);
+          break;
+        case DateQuickTag.prev3Months:
+          _eDate = DateTime(now.year, now.month - 3, now.day);
+          _sDate = DateTime(now.year, now.month - 6, now.day);
+          break;
+        case DateQuickTag.q1:
+          _sDate = DateTime(now.year, 1, 1);
+          _eDate = DateTime(now.year, 3, 31);
+          break;
+        case DateQuickTag.q2:
+          _sDate = DateTime(now.year, 4, 1);
+          _eDate = DateTime(now.year, 6, 30);
+          break;
+        case DateQuickTag.q3:
+          _sDate = DateTime(now.year, 7, 1);
+          _eDate = DateTime(now.year, 9, 30);
+          break;
+        case DateQuickTag.q4:
+          _sDate = DateTime(now.year, 10, 1);
+          _eDate = DateTime(now.year, 12, 31);
+          break;
       }
     });
     HapticFeedback.lightImpact();
@@ -113,38 +147,74 @@ class _DateRangeBottomSheetState extends ConsumerState<DateRangeBottomSheet> {
               // Handle
               Center(
                 child: Container(
-                  width: 48,
-                  height: 5,
-                  margin: const EdgeInsets.only(bottom: 24),
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
                     color: isDark ? Colors.white24 : Colors.black12,
-                    borderRadius: BorderRadius.circular(2.5),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               
-              Text(
-                '時間區段篩選',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
+              // Header Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Placeholder to keep title perfectly centered
+                  const SizedBox(width: 48),
+                  
+                  // Header Title
+                  Text(
+                    '時間區段篩選',
+                    style: TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 2.0,
+                      color: isDark ? Colors.white54 : Colors.black54,
+                    ),
+                  ),
+
+                  // Done Button (Icon)
+                  IconButton(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      _submit();
+                    },
+                    icon: const Icon(Icons.check_circle_rounded),
+                    color: theme.primaryColor,
+                    iconSize: 28,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 48,
+                      minHeight: 48,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
               // Quick Tags
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildQuickTag('本周', () => _applyQuickTag(0), theme, isDark),
+                    _buildQuickTag('本周', () => _applyQuickTag(DateQuickTag.thisWeek), theme, isDark),
                     const SizedBox(width: 12),
-                    _buildQuickTag('本月', () => _applyQuickTag(-1), theme, isDark),
+                    _buildQuickTag('本月', () => _applyQuickTag(DateQuickTag.thisMonth), theme, isDark),
                     const SizedBox(width: 12),
-                    _buildQuickTag('近三個月', () => _applyQuickTag(3), theme, isDark),
+                    _buildQuickTag('近三個月', () => _applyQuickTag(DateQuickTag.last3Months), theme, isDark),
                     const SizedBox(width: 12),
-                    _buildQuickTag('近半年', () => _applyQuickTag(6), theme, isDark),
+                    _buildQuickTag('上個三個月', () => _applyQuickTag(DateQuickTag.prev3Months), theme, isDark),
+                    const SizedBox(width: 12),
+                    _buildQuickTag('Q1', () => _applyQuickTag(DateQuickTag.q1), theme, isDark),
+                    const SizedBox(width: 12),
+                    _buildQuickTag('Q2', () => _applyQuickTag(DateQuickTag.q2), theme, isDark),
+                    const SizedBox(width: 12),
+                    _buildQuickTag('Q3', () => _applyQuickTag(DateQuickTag.q3), theme, isDark),
+                    const SizedBox(width: 12),
+                    _buildQuickTag('Q4', () => _applyQuickTag(DateQuickTag.q4), theme, isDark),
                   ],
                 ),
               ),
@@ -157,7 +227,7 @@ class _DateRangeBottomSheetState extends ConsumerState<DateRangeBottomSheet> {
                     child: _buildDateInput('起始時間', _sDate, true, theme, isDark),
                   ),
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 12),
                     child: Icon(Icons.arrow_forward_rounded, color: Colors.grey, size: 20),
                   ),
                   Expanded(
@@ -165,28 +235,7 @@ class _DateRangeBottomSheetState extends ConsumerState<DateRangeBottomSheet> {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
-
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.primaryColor,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    '套用區段',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -234,7 +283,7 @@ class _DateRangeBottomSheetState extends ConsumerState<DateRangeBottomSheet> {
           ),
           const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
               color: isDark ? Colors.black26 : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(12),
@@ -243,13 +292,19 @@ class _DateRangeBottomSheetState extends ConsumerState<DateRangeBottomSheet> {
             child: Row(
               children: [
                 Icon(Icons.calendar_today_rounded, size: 16, color: theme.primaryColor),
-                const SizedBox(width: 8),
-                Text(
-                  dateFormat.format(date),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
+                const SizedBox(width: 6),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      dateFormat.format(date),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
                   ),
                 ),
               ],

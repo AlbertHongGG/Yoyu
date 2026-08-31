@@ -284,7 +284,15 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
         },
       ),
       
-      // 2. Search
+      // 2. Date Range
+      IconButton(
+        icon: const Icon(Icons.date_range_rounded),
+        onPressed: () {
+          DateRangeBottomSheet.show(context, widget.card.cardNo);
+        },
+      ),
+      
+      // 3. Search
       IconButton(
         icon: Icon(filterState.searchQuery.isNotEmpty ? Icons.close_rounded : Icons.search_rounded),
         onPressed: () {
@@ -311,14 +319,6 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
               ),
             );
           }
-        },
-      ),
-
-      // 3. Date Range
-      IconButton(
-        icon: const Icon(Icons.date_range_rounded),
-        onPressed: () {
-          DateRangeBottomSheet.show(context, widget.card.cardNo);
         },
       ),
       const SizedBox(width: 8),
