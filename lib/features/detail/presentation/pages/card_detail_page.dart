@@ -9,6 +9,7 @@ import 'package:yoyu/features/detail/presentation/widgets/transaction_history_ta
 import 'package:yoyu/features/detail/presentation/widgets/transaction_analysis_tab.dart';
 import 'package:yoyu/core/widgets/skeleton_widget.dart';
 import 'package:yoyu/features/detail/presentation/providers/card_detail_filter_provider.dart';
+import 'package:yoyu/core/widgets/animated_floating_tab_bar.dart';
 import 'package:yoyu/core/widgets/app_bottom_sheet.dart';
 import 'package:yoyu/core/widgets/search_dialog.dart';
 import 'package:yoyu/features/detail/presentation/widgets/date_range_bottom_sheet.dart';
@@ -34,9 +35,6 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     final txAsync = ref.watch(filteredTransactionProvider(widget.card.cardNo));
     final anAsync = ref.watch(analysisProvider(widget.card.cardNo));
     ref.watch(cardDetailFilterProvider);
@@ -126,65 +124,17 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> {
             right: 0,
             bottom: 24,
             child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildNavItem(0, Icons.list_alt_rounded, '交易紀錄', isDark, theme.primaryColor),
-                    _buildNavItem(1, Icons.pie_chart_outline_rounded, '分析', isDark, theme.primaryColor),
-                  ],
-                ),
+              child: AnimatedFloatingTabBar(
+                selectedIndex: _currentIndex,
+                onItemSelected: _onTabTapped,
+                items: const [
+                  FloatingTabItem(icon: Icons.list_alt_rounded, label: '交易紀錄'),
+                  FloatingTabItem(icon: Icons.pie_chart_outline_rounded, label: '分析'),
+                ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(int index, IconData icon, String label, bool isDark, Color primaryColor) {
-    final isSelected = _currentIndex == index;
-    return GestureDetector(
-      onTap: () => _onTabTapped(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withValues(alpha: 0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(26),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? primaryColor : (isDark ? Colors.white54 : Colors.black54),
-              size: 20,
-            ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: primaryColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }
