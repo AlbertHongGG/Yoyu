@@ -56,6 +56,14 @@ dev_dependencies:
   freezed: ^3.2.6-dev.1
   build_runner: ^2.15.1
   json_serializable: ^6.14.1
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "logo/logo.png"
+  min_sdk_android: 21
+
 flutter:
 
   # The following line ensures that the Material Icons font is

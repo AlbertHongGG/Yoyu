@@ -149,7 +149,7 @@ class AppBottomSheet<T> extends StatelessWidget {
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
