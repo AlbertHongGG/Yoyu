@@ -9,7 +9,7 @@ class CardListNotifier extends AsyncNotifier<List<CardEntity>> {
     return ref.read(cardRepositoryProvider).loadCards();
   }
 
-  Future<bool> addCard(String cardNo) async {
+  Future<bool> addCard(String cardNo, String cardName) async {
     final currentCards = state.value ?? [];
     if (currentCards.any((c) => c.cardNo == cardNo)) {
       ref.read(notificationProvider.notifier).showWarning('此卡片已存在');
@@ -17,8 +17,9 @@ class CardListNotifier extends AsyncNotifier<List<CardEntity>> {
     }
 
     try {
-      final newCard = await ref.read(cardRepositoryProvider).checkCard(cardNo);
+      var newCard = await ref.read(cardRepositoryProvider).checkCard(cardNo);
       if (newCard != null) {
+        newCard = newCard.copyWith(cardName: cardName.isNotEmpty ? cardName : '我的卡片');
         final updatedCards = [...currentCards, newCard];
         state = AsyncData(updatedCards);
         await ref.read(cardRepositoryProvider).saveCards(updatedCards);

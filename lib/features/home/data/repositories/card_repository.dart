@@ -30,7 +30,6 @@ class CardRepository {
               cardNo: cardData['cardNo'],
               cardFaceUrl: cardData['cardImageUrl'] ?? 'https://static01-ipass.cdn.hinet.net/ipassapp/cardface/11.webp',
               lastTranSum: (cardData['LastTranSum'] ?? 0).toDouble(),
-              lastTranDate: cardData['LastTranDate'] ?? '',
               isRegister: cardData['isRegister'] ?? false,
             );
           } else {

@@ -105,70 +105,58 @@ class CardItemWidget extends StatelessWidget {
             ),
             
             // Card Info Body
+            // Card Info Body
             Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '目前餘額',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? Colors.white54 : Colors.black54,
-                              fontWeight: FontWeight.w600,
-                            ),
+                  // Left side: Name + Card No
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          card.cardName,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            currencyFormat.format(card.lastTranSum),
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Outfit', // Optional if you have it
-                              color: theme.primaryColor,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4), // Tight spacing to act as subtitle
+                        Row(
+                          children: [
+                            Icon(Icons.credit_card_outlined, size: 12, color: isDark ? Colors.white54 : Colors.black38),
+                            const SizedBox(width: 4),
+                            Text(
+                              card.cardNo.replaceAllMapped(RegExp(r".{4}"), (match) => "${match.group(0)} "), // Simple formatting
+                              style: TextStyle(
+                                fontSize: 11,
+                                letterSpacing: 1.2,
+                                fontFamily: 'monospace',
+                                color: isDark ? Colors.white54 : Colors.black45,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Icon(Icons.credit_card_outlined, size: 14, color: isDark ? Colors.white54 : Colors.black54),
-                      const SizedBox(width: 6),
-                      Text(
-                        card.cardNo.replaceAllMapped(RegExp(r".{4}"), (match) => "${match.group(0)} "), // Simple formatting
-                        style: TextStyle(
-                          fontSize: 13,
-                          letterSpacing: 1.5,
-                          fontFamily: 'monospace',
-                          color: isDark ? Colors.white70 : Colors.black87,
+                          ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.access_time_rounded, size: 14, color: isDark ? Colors.white30 : Colors.black38),
-                      const SizedBox(width: 6),
-                      Text(
-                        '最後交易: ${card.lastTranDate}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDark ? Colors.white30 : Colors.black38,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(width: 12),
+                  // Right side: Amount
+                  Text(
+                    currencyFormat.format(card.lastTranSum),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Outfit',
+                      color: theme.primaryColor,
+                    ),
                   ),
                 ],
               ),

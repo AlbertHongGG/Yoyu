@@ -7,9 +7,9 @@ part 'card_entity.g.dart';
 abstract class CardEntity with _$CardEntity {
   const factory CardEntity({
     required String cardNo,
+    @Default('我的卡片') String cardName,
     @Default('https://static01-ipass.cdn.hinet.net/ipassapp/cardface/11.webp') String cardFaceUrl,
     required double lastTranSum,
-    required String lastTranDate,
     required bool isRegister,
   }) = _CardEntity;
 
