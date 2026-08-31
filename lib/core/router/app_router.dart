@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yoyu/features/home/presentation/pages/home_page.dart';
@@ -17,16 +18,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/pick_face',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final card = state.extra as CardEntity;
-          return CardFacePickerPage(card: card);
+          return CupertinoPage(child: CardFacePickerPage(card: card));
         },
       ),
       GoRoute(
         path: '/detail',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final card = state.extra as CardEntity;
-          return CardDetailPage(card: card);
+          return CupertinoPage(child: CardDetailPage(card: card));
         },
       ),
     ],

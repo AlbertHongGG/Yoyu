@@ -15,31 +15,15 @@ class CardDetailPage extends ConsumerStatefulWidget {
   ConsumerState<CardDetailPage> createState() => _CardDetailPageState();
 }
 
-class _CardDetailPageState extends ConsumerState<CardDetailPage> with SingleTickerProviderStateMixin {
+class _CardDetailPageState extends ConsumerState<CardDetailPage> {
   int _currentIndex = 0;
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
 
   void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    if (_currentIndex != index) {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 
   @override
@@ -50,6 +34,49 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> with SingleTick
     final txAsync = ref.watch(transactionProvider(widget.card.cardNo));
     final anAsync = ref.watch(analysisProvider(widget.card.cardNo));
 
+    Widget currentTab;
+    if (_currentIndex == 0) {
+      currentTab = KeyedSubtree(
+        key: const ValueKey('tab0'),
+        child: txAsync.when(
+          data: (txs) => TransactionHistoryTab(transactions: txs),
+          loading: () => ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: 5,
+            itemBuilder: (context, index) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              height: 80,
+              child: SkeletonWidget(width: double.infinity, height: 80, borderRadius: BorderRadius.circular(16)),
+            ),
+          ),
+          error: (e, _) => Center(child: Text('Error: $e')),
+        ),
+      );
+    } else {
+      currentTab = KeyedSubtree(
+        key: const ValueKey('tab1'),
+        child: anAsync.when(
+          data: (ans) => TransactionAnalysisTab(analysisList: ans),
+          loading: () => Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                const SkeletonWidget(width: 120, height: 20),
+                const SizedBox(height: 8),
+                const SkeletonWidget(width: 200, height: 40),
+                const SizedBox(height: 40),
+                ...List.generate(3, (index) => const Padding(
+                  padding: EdgeInsets.only(bottom: 24),
+                  child: SkeletonWidget(width: double.infinity, height: 40),
+                )),
+              ],
+            ),
+          ),
+          error: (e, _) => Center(child: Text('Error: $e')),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -59,47 +86,21 @@ class _CardDetailPageState extends ConsumerState<CardDetailPage> with SingleTick
       ),
       body: Stack(
         children: [
-          PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() => _currentIndex = index);
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.05),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              );
             },
-            children: [
-              // Tab 1: History
-              txAsync.when(
-                data: (txs) => TransactionHistoryTab(transactions: txs),
-                loading: () => ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: 5,
-                  itemBuilder: (context, index) => Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    height: 80,
-                    child: SkeletonWidget(width: double.infinity, height: 80, borderRadius: BorderRadius.circular(16)),
-                  ),
-                ),
-                error: (e, _) => Center(child: Text('Error: $e')),
-              ),
-              // Tab 2: Analysis
-              anAsync.when(
-                data: (ans) => TransactionAnalysisTab(analysisList: ans),
-                loading: () => Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      const SkeletonWidget(width: 120, height: 20),
-                      const SizedBox(height: 8),
-                      const SkeletonWidget(width: 200, height: 40),
-                      const SizedBox(height: 40),
-                      ...List.generate(3, (index) => const Padding(
-                        padding: EdgeInsets.only(bottom: 24),
-                        child: SkeletonWidget(width: double.infinity, height: 40),
-                      )),
-                    ],
-                  ),
-                ),
-                error: (e, _) => Center(child: Text('Error: $e')),
-              ),
-            ],
+            child: currentTab,
           ),
           
           // Floating Bottom Navigation
