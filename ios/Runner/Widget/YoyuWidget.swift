@@ -60,44 +60,55 @@ struct YoyuWidgetEntryView : View {
             Text("無卡片資料")
                 .foregroundColor(.gray)
         } else {
-            // In iOS 17+, you can use interactive AppIntent for scrolling,
-            // but for simple widget, we just display the first card or a VStack of cards.
-            // Using a simple stack for the first card for demonstration.
             let card = entry.cards.first!
             
-            VStack(alignment: .leading) {
-                // Image
+            ZStack {
+                // Background Image
                 if let url = URL(string: card.cardFaceUrl) {
                     AsyncImage(url: url) { image in
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                     } placeholder: {
-                        Color.gray.opacity(0.3)
+                        Color(red: 0.18, green: 0.18, blue: 0.18) // #2E2E2E
                     }
-                    .frame(height: 100)
-                    .cornerRadius(12)
+                } else {
+                    Color(red: 0.18, green: 0.18, blue: 0.18)
                 }
                 
-                Spacer()
+                // Dark Gradient Overlay
+                LinearGradient(
+                    gradient: Gradient(colors: [.black.opacity(0.7), .black.opacity(0.0)]),
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
                 
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(card.cardName)
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.black)
-                        Text(card.cardNo)
-                            .font(.system(size: 10))
-                            .foregroundColor(.gray)
-                    }
+                // Text Info at bottom
+                VStack {
                     Spacer()
-                    Text("$\(Int(card.lastTranSum))")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.blue)
+                    HStack(alignment: .bottom) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(card.cardName)
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.5), radius: 2, x: 1, y: 1)
+                                
+                            Text(card.cardNo)
+                                .font(.system(size: 12))
+                                .foregroundColor(Color(white: 0.93)) // #EEEEEE
+                                .shadow(color: .black.opacity(0.5), radius: 2, x: 1, y: 1)
+                        }
+                        
+                        Spacer()
+                        
+                        Text("$\(Int(card.lastTranSum))")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
+                    }
+                    .padding(16)
                 }
             }
-            .padding()
-            .background(Color.white)
         }
     }
 }
@@ -112,6 +123,8 @@ struct YoyuWidget: Widget {
         }
         .configurationDisplayName("Yoyu 卡片")
         .description("快速查看您的卡片餘額。")
-        .supportedFamilies([.systemMedium, .systemLarge])
+        // Restrict to medium (usually 4x2 on iPhone) and small.
+        .supportedFamilies([.systemMedium])
+        // If compiling for iOS 17+, you can use .contentMarginsDisabled() here to remove default padding
     }
 }

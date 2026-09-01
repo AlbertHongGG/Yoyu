@@ -1,16 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#F5F5F5"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <StackView
-        android:id="@+id/widget_stack_view"
+    <!-- Edge-to-edge Background Image -->
+    <ImageView
+        android:id="@+id/card_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:loopViews="true" />
-        
+        android:scaleType="centerCrop"
+        android:background="#2E2E2E" />
+
+    <!-- Dark Gradient Overlay for Text Readability -->
+    <ImageView
+        android:id="@+id/card_gradient"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/widget_gradient_overlay" />
+
+    <!-- Info Overlay: Bottom Right (Balance), Bottom Left (Card Info) -->
+    <RelativeLayout
+        android:id="@+id/card_info_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/card_balance">
+
+            <TextView
+                android:id="@+id/card_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="我的卡片"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:shadowColor="#80000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"/>
+
+            <TextView
+                android:id="@+id/card_no"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1234 5678"
+                android:textSize="14sp"
+                android:textColor="#EEEEEE"
+                android:layout_marginTop="2dp"
+                android:shadowColor="#80000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/card_balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:text="$0"
+            android:textSize="32sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:shadowColor="#80000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="4" />
+            
+    </RelativeLayout>
+
+    <!-- Invisible Touch Zones for Pagination -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+        <FrameLayout
+            android:id="@+id/btn_prev"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+        <FrameLayout
+            android:id="@+id/btn_next"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/widget_empty_view"
         android:layout_width="match_parent"
@@ -18,5 +102,7 @@
         android:gravity="center"
         android:text="無卡片資料"
         android:textColor="#888888"
+        android:background="#F5F5F5"
         android:visibility="gone" />
+
 </FrameLayout>
