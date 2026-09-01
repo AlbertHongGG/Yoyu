@@ -26,12 +26,7 @@ class CardRepository {
           final cardData = cardsData.first;
           
           if (cardData['errCode'] == '0') {
-            return CardEntity(
-              cardNo: cardData['cardNo'],
-              cardFaceUrl: cardData['cardImageUrl'] ?? 'https://static01-ipass.cdn.hinet.net/ipassapp/cardface/11.webp',
-              lastTranSum: (cardData['LastTranSum'] ?? 0).toDouble(),
-              isRegister: cardData['isRegister'] ?? false,
-            );
+            return CardEntity.fromApi(cardData);
           } else {
              throw Exception(cardData['errMsg'] ?? '驗證失敗');
           }
