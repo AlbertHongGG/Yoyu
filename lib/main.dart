@@ -4,8 +4,13 @@ import 'package:yoyu/core/router/app_router.dart';
 import 'package:yoyu/core/theme/app_theme.dart';
 import 'package:yoyu/core/notifications/widgets/global_notification_overlay.dart';
 import 'package:yoyu/features/splash/splash_page.dart';
+import 'package:yoyu/core/background/background_task_manager.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await BackgroundTaskManager.initialize();
+  BackgroundTaskManager.registerPeriodicSync();
+  
   runApp(
     const ProviderScope(
       child: YoyuBootstrap(),

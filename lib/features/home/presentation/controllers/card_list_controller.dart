@@ -3,10 +3,14 @@ import 'package:yoyu/features/home/domain/models/card_entity.dart';
 import 'package:yoyu/features/home/data/repositories/card_repository.dart';
 import 'package:yoyu/core/notifications/controllers/notification_controller.dart';
 
+import 'package:yoyu/features/home/presentation/providers/widget_repository_provider.dart';
+
 class CardListNotifier extends AsyncNotifier<List<CardEntity>> {
   @override
   Future<List<CardEntity>> build() async {
-    return ref.read(cardRepositoryProvider).loadCards();
+    final cards = await ref.read(cardRepositoryProvider).loadCards();
+    await ref.read(widgetRepositoryProvider).syncCardsToWidget(cards);
+    return cards;
   }
 
   Future<bool> addCard(String cardNo, String cardName) async {
@@ -23,6 +27,7 @@ class CardListNotifier extends AsyncNotifier<List<CardEntity>> {
         final updatedCards = [...currentCards, newCard];
         state = AsyncData(updatedCards);
         await ref.read(cardRepositoryProvider).saveCards(updatedCards);
+        await ref.read(widgetRepositoryProvider).syncCardsToWidget(updatedCards);
         ref.read(notificationProvider.notifier).showSuccess('新增卡片成功');
         return true;
       }
@@ -38,6 +43,7 @@ class CardListNotifier extends AsyncNotifier<List<CardEntity>> {
     final updatedCards = currentCards.map((c) => c.cardNo == updatedCard.cardNo ? updatedCard : c).toList();
     state = AsyncData(updatedCards);
     await ref.read(cardRepositoryProvider).saveCards(updatedCards);
+    await ref.read(widgetRepositoryProvider).syncCardsToWidget(updatedCards);
   }
   
   Future<void> removeCard(String cardNo) async {
@@ -45,6 +51,7 @@ class CardListNotifier extends AsyncNotifier<List<CardEntity>> {
     final updatedCards = currentCards.where((c) => c.cardNo != cardNo).toList();
     state = AsyncData(updatedCards);
     await ref.read(cardRepositoryProvider).saveCards(updatedCards);
+    await ref.read(widgetRepositoryProvider).syncCardsToWidget(updatedCards);
   }
 }
 

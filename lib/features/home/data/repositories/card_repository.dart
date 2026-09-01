@@ -64,6 +64,34 @@ class CardRepository {
     }
     return [];
   }
+  Future<List<CardEntity>> fetchLatestCardsBalance(List<CardEntity> existingCards) async {
+    if (existingCards.isEmpty) return [];
+
+    final updatedCards = <CardEntity>[];
+    
+    // In a real scenario, this could be a batch API call. 
+    // Here we use checkCard for each.
+    for (var card in existingCards) {
+      try {
+        final updatedCard = await checkCard(card.cardNo);
+        if (updatedCard != null) {
+          // preserve custom cardName and faceUrl from the local entity
+          updatedCards.add(updatedCard.copyWith(
+            cardName: card.cardName,
+            cardFaceUrl: card.cardFaceUrl,
+          ));
+        } else {
+          updatedCards.add(card);
+        }
+      } catch (e) {
+        // Fallback to existing card on error
+        updatedCards.add(card);
+      }
+    }
+    
+    await saveCards(updatedCards);
+    return updatedCards;
+  }
 }
 
 final cardRepositoryProvider = Provider<CardRepository>((ref) {
