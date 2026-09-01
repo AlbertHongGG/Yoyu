@@ -52,13 +52,10 @@ class CardItemWidget extends StatelessWidget {
                         card.cardFaceUrl,
                         fit: BoxFit.cover,
                         alignment: Alignment.center, // Center crop for horizontal images
-                        errorBuilder: (context, error, stackTrace) {
-                          debugPrint('Image Load Error for card ${card.cardNo} (URL: ${card.cardFaceUrl}): $error');
-                          return Container(
-                            color: isDark ? Colors.white10 : Colors.black12,
-                            child: const Icon(Icons.credit_card, size: 48, color: Colors.grey),
-                          );
-                        },
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: isDark ? Colors.white10 : Colors.black12,
+                          child: const Icon(Icons.credit_card, size: 48, color: Colors.grey),
+                        ),
                       ),
                     ),
                   ),

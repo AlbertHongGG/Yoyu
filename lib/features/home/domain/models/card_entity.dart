@@ -1,11 +1,11 @@
-﻿import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:yoyu/core/constants/app_constants.dart';
 
 part 'card_entity.freezed.dart';
 part 'card_entity.g.dart';
 
 @freezed
-abstract class CardEntity with $_CardEntity {
+abstract class CardEntity with _$CardEntity {
   const factory CardEntity({
     required String cardNo,
     @Default('我的卡片') String cardName,
@@ -14,7 +14,7 @@ abstract class CardEntity with $_CardEntity {
     required bool isRegister,
   }) = _CardEntity;
 
-  factory CardEntity.fromJson(Map<String, dynamic> json) => $_CardEntityFromJson(json);
+  factory CardEntity.fromJson(Map<String, dynamic> json) => _$CardEntityFromJson(json);
 
   /// Defensive programming: Always use default face URL for new cards.
   factory CardEntity.fromApi(Map<String, dynamic> cardData) {
