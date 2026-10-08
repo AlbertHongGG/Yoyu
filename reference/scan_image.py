@@ -23,7 +23,7 @@ def main():
     print(f"開始掃描卡面圖片 IDs: {start_id} 到 {end_id}...")
     
     # 使用 ThreadPoolExecutor 平行發送請求加快速度
-    with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=60) as executor:
         futures = {executor.submit(check_image, i): i for i in range(start_id, end_id + 1)}
         
         for future in concurrent.futures.as_completed(futures):
